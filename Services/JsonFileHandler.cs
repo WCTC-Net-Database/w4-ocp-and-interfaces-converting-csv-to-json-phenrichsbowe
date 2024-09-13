@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using W4_assignment_template.Interfaces;
 using W4_assignment_template.Models;
 
@@ -7,13 +8,28 @@ public class JsonFileHandler : IFileHandler
 {
     public List<Character> ReadCharacters(string filePath)
     {
-        // TODO: Implement JSON reading logic
-        throw new NotImplementedException();
+        List<Character>? characters;
+
+        if (!File.Exists(filePath)) {
+            Console.WriteLine($"Character storage at {filePath} does not exist attempting to create it...");
+
+            File.Create(filePath).Dispose();
+        }
+
+        using StreamReader streamReader = new(filePath);
+        string json = streamReader.ReadToEnd();
+
+        characters = JsonConvert.DeserializeObject<List<Character>>(json);
+        
+        return characters;
     }
 
     public void WriteCharacters(string filePath, List<Character> characters)
     {
-        // TODO: Implement JSON writing logic
-        throw new NotImplementedException();
+        string json = JsonConvert.SerializeObject(characters, Formatting.Indented);
+        using StreamWriter streamWriter = new(filePath);
+
+        streamWriter.Write(json);
+        streamWriter.Dispose();
     }
 }
