@@ -6,7 +6,9 @@ namespace W4_assignment_template.Services;
 
 public class JsonFileHandler : IFileHandler
 {
-    public List<Character> ReadCharacters(string filePath)
+    private static string filePath = "Files/input.json";
+
+    public List<Character> ReadCharacters()
     {
         List<Character>? characters;
 
@@ -24,7 +26,7 @@ public class JsonFileHandler : IFileHandler
         return characters;
     }
 
-    public void WriteCharacters(string filePath, List<Character> characters)
+    public void WriteCharacters(List<Character> characters)
     {
         string json = JsonConvert.SerializeObject(characters, Formatting.Indented);
         using StreamWriter streamWriter = new(filePath);

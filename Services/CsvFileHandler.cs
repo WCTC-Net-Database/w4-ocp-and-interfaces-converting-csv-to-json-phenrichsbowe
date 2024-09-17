@@ -7,7 +7,9 @@ namespace W4_assignment_template.Services;
 
 public class CsvFileHandler : IFileHandler
 {
-    public List<Character> ReadCharacters(string filePath)
+    private static string filePath = "Files/input.csv";
+
+    public List<Character> ReadCharacters()
     {
         List<Character> characters = [];
 
@@ -29,7 +31,7 @@ public class CsvFileHandler : IFileHandler
         return characters;
     }
 
-    public void WriteCharacters(string filePath, List<Character> characters)
+    public void WriteCharacters(List<Character> characters)
     {
         using var streamWriter = new StreamWriter(filePath);
         using var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture);
