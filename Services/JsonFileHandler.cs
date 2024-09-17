@@ -21,7 +21,7 @@ public class JsonFileHandler : IFileHandler
         using StreamReader streamReader = new(filePath);
         string json = streamReader.ReadToEnd();
 
-        characters = JsonConvert.DeserializeObject<List<Character>>(json);
+        characters = JsonConvert.DeserializeObject<List<Character>>(json) ?? [];
         
         return characters;
     }
