@@ -6,24 +6,27 @@ namespace W4_assignment_template;
 
 class Program
 {
-    static IFileHandler fileHandler;
-    static List<Character> characters;
+    static IFileHandler fileHandler = new CsvFileHandler();
+    static readonly List<Character> characters = fileHandler.ReadCharacters();
+
+    enum FileFormat {
+        CSV = 1,
+        JSON = 2
+    }
 
     static void Main()
     {
-        string filePath = "input.csv"; // Default to CSV file
-        fileHandler = new CsvFileHandler(); // Default to CSV handler
-        characters = fileHandler.ReadCharacters(filePath);
-
         while (true)
         {
             Console.WriteLine("Menu:");
             Console.WriteLine("1. Display Characters");
             Console.WriteLine("2. Add Character");
-            Console.WriteLine("3. Level Up Character");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("3. Find Character");
+            Console.WriteLine("4. Level Up Character");
+            Console.WriteLine("5. Change File Format (CSV/JSON)");
+            Console.WriteLine("6. Exit");
             Console.Write("Enter your choice: ");
-            string choice = Console.ReadLine();
+            string? choice = Console.ReadLine();
 
             switch (choice)
             {
@@ -34,10 +37,16 @@ class Program
                     AddCharacter();
                     break;
                 case "3":
-                    LevelUpCharacter();
+                    FindCharacter();
                     break;
                 case "4":
-                    fileHandler.WriteCharacters(filePath, characters);
+                    LevelUpCharacter();
+                    break;
+                case "5":
+                    ChangeFileFormat();
+                    break;
+                case "6":
+                    fileHandler.WriteCharacters(characters);
                     return;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
@@ -46,36 +55,98 @@ class Program
         }
     }
 
+    public static Character? FindCharacter() {
+        Character? character;
+        string? characterName = null;
+
+        while (string.IsNullOrEmpty(characterName)) {
+            Console.Write("Enter the name of the character you would like to find:");
+            characterName = Console.ReadLine();
+        }
+
+        character = characters.Find(c => c.Name.Equals(characterName, StringComparison.OrdinalIgnoreCase));
+
+        if (character == null) {
+            Console.WriteLine($"Character {characterName} does not exist.");
+            return character;
+        }
+
+        Console.WriteLine($"Found character {character}");
+
+        return character;
+    }
+
     static void DisplayAllCharacters()
     {
-        foreach (var character in characters)
+        if (characters.Count == 0) {
+            Console.WriteLine("No characters to display character storage is empty, try creating a character first!");
+            return;
+        }
+
+        foreach (Character character in characters)
         {
-            Console.WriteLine($"Name: {character.Name}, Class: {character.Class}, Level: {character.Level}, HP: {character.HP}, Equipment: {string.Join(", ", character.Equipment)}");
+            Console.WriteLine(character);
         }
     }
 
     static void AddCharacter()
     {
-        // TODO: Implement logic to add a new character
-        // Prompt for character details (name, class, level, hit points, equipment)
-        // Add the new character to the characters list
+        Character character = new();
+
+        if (character == null) return;
+
+        characters.Add(character);
     }
 
     static void LevelUpCharacter()
     {
-        Console.Write("Enter the name of the character to level up: ");
-        string nameToLevelUp = Console.ReadLine();
+        Character? character = FindCharacter();
 
-        var character = characters.Find(c => c.Name.Equals(nameToLevelUp, StringComparison.OrdinalIgnoreCase));
-        if (character != null)
-        {
-            // TODO: Implement logic to level up the character
-            // character.Level++;
-            // Console.WriteLine($"Character {character.Name} leveled up to level {character.Level}!");
+        if (character == null)  return;
+
+        character.Level += 1;
+
+        Console.WriteLine($"Success character {character.Name} levled up to {character.Level}!");
+    }
+
+    static void ChangeFileFormat() {
+        FileFormat selectedFormat;
+
+        while (true) {
+            string? input;
+
+            Console.WriteLine("Which file format would you like to switch to?:");
+            Console.WriteLine("1: CSV");
+            Console.WriteLine("2: JSON");
+
+            input = Console.ReadLine();
+
+            if (Enum.TryParse(input, out selectedFormat) && Enum.IsDefined(typeof(FileFormat), selectedFormat)) {
+                break;
+            }
+
+            Console.WriteLine("Invalid file format specified. Enter '1' for CSV or '2' for JSON.");
         }
-        else
-        {
-            Console.WriteLine("Character not found.");
+
+        switch (selectedFormat) {
+            case FileFormat.CSV:
+                if (fileHandler is CsvFileHandler) {
+                    Console.WriteLine("File format is already set to use CSV.");
+                    return;
+                }
+                
+                fileHandler = new CsvFileHandler();
+                Console.WriteLine("Success file format changed to CSV!");
+                break;
+            case FileFormat.JSON:
+                if (fileHandler is JsonFileHandler) {
+                    Console.WriteLine("File format is already set to use JSON");
+                    return;
+                }
+
+                fileHandler = new JsonFileHandler();
+                Console.WriteLine("Success file format changed to JSON!");
+                break;
         }
     }
 }
